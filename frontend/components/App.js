@@ -41,27 +41,17 @@ const reducer = (state, action) => {
   switch(action.type) {
 
     case CREATE_QUOTE:
-      return {
-        ...state,
-        quotes: [
-          ...state.quotes,
-          { id: getNextId(),
-            quoteText: action.payload.quoteText,
-            authorName: action.payload.authorName,
-            apocryphal: false
-          }
-        ]
+      return { ...state,
+        quotes: [...state.quotes, action.payload]
       };
 
     case DELETE_QUOTE:
-      return {
-        ...state,
+      return { ...state,
         quotes: state.quotes.filter(quote => quote.id != action.payload)
       };
 
     case EDIT_QUOTE_AUTHENTICITY:
-      return {
-        ...state,
+      return { ...state,
         quotes: state.quotes.map(quote => {
           if (quote.id != action.payload) return quote;
           return { ...quote, apocryphal: !quote.apocryphal}
@@ -69,14 +59,12 @@ const reducer = (state, action) => {
       };
 
     case SET_HIGHLIGHTED_QUOTE:
-      return {
-        ...state,
+      return { ...state,
         highlightedQuote: action.payload === state.highlightedQuote ? null : action.payload
       };
 
     case TOGGLE_VISIBILITY:
-      return {
-        ...state,
+      return { ...state,
         displayAllQuotes: !state.displayAllQuotes
       };
 
@@ -89,7 +77,8 @@ export default function App() {
   const [state, dispatch] = useReducer(reducer, state0);
 
   const createQuote = ({ authorName, quoteText }) => {
-    dispatch({ type: CREATE_QUOTE, payload: { authorName: authorName, quoteText: quoteText }});
+    const newQuote = { id: getNextId(), authorName, quoteText, apocryphal: false }
+    dispatch({ type: CREATE_QUOTE, payload: newQuote });
   }
 
   const deleteQuote = id => {

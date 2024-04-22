@@ -18,7 +18,7 @@ const reducer = (state, action) => {
       }
 
     case RESET_FORM:
-      return state0;
+      return { authorName: '', quoteText: '' };
 
     default:
       return state;
@@ -30,7 +30,7 @@ export default function TodoForm({ createQuote = () => { } }) {
 
   const onChange = evt => {
     const { name, value } = evt.target;
-    dispatch({ type: CHANGE_INPUT, payload: { name: name, value: value } });
+    dispatch({ type: CHANGE_INPUT, payload: { name, value } });
   }
 
   const resetForm = () => {
