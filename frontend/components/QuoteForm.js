@@ -1,28 +1,48 @@
-import React from 'react' // 👈 you'll need the reducer hook
+import React, { useReducer } from 'react';
 
-// 👇 these are the types of actions that can change state
-const CHANGE_INPUT = 'CHANGE_INPUT'
-const RESET_FORM = 'RESET_FORM'
+const CHANGE_INPUT = 'CHANGE_INPUT';
+const RESET_FORM = 'RESET_FORM';
 
-// 👇 create your initial state object here
+const state0 = {
+  authorName: '',
+  quoteText: '',
+};
 
-// 👇 create your reducer function here
+const reducer = (state, action) => {
+  switch(action.type) {
+    
+    case CHANGE_INPUT:
+      return {
+        ...state,
+        [action.payload.name]: action.payload.value
+      }
+
+    case RESET_FORM:
+      return state0;
+
+    default:
+      return state;
+  }
+};
 
 export default function TodoForm({ createQuote = () => { } }) {
-  // 👇 use the reducer hook to spin up state and dispatch
+  const [state, dispatch] = useReducer(reducer, state0);
 
-  const onChange = () => {
-    // 👇 implement
+  const onChange = evt => {
+    const { name, value } = evt.target;
+    dispatch({ type: CHANGE_INPUT, payload: { name: name, value: value } });
   }
+
   const resetForm = () => {
-    // 👇 implement
+    dispatch({ type: RESET_FORM });
   }
-  const onNewQuote = () => {
-    // 👇 implement
-    resetForm()
+  
+  const onNewQuote = evt => {
+    evt.preventDefault();
+    createQuote({ authorName: state.authorName, quoteText: state.quoteText });
+    resetForm();
   }
 
-  // 👇 some props are missing in the JSX below:
   return (
     <form id="quoteForm" onSubmit={onNewQuote}>
       <h3>New Quote Form</h3>
@@ -30,16 +50,20 @@ export default function TodoForm({ createQuote = () => { } }) {
         <input
           type='text'
           name='authorName'
+          value={state.authorName}
           placeholder='type author name'
           onChange={onChange}
+          required
         />
       </label>
       <label><span>Quote text:</span>
         <textarea
           type='text'
           name='quoteText'
+          value={state.quoteText}
           placeholder='type quote'
           onChange={onChange}
+          required
         />
       </label>
       <label><span>Create quote:</span>
