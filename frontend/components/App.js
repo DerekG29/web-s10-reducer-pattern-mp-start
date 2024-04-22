@@ -1,16 +1,15 @@
-import React from 'react' // 👈 you'll need the reducer hook
-import Quotes from './Quotes'
-import QuoteForm from './QuoteForm'
+import React, { useReducer } from 'react';
+import Quotes from './Quotes';
+import QuoteForm from './QuoteForm';
 
-// 👇 these are the types of actions that can change state
-const CREATE_QUOTE = 'CREATE_QUOTE'
-const DELETE_QUOTE = 'DELETE_QUOTE'
-const EDIT_QUOTE_AUTHENTICITY = 'EDIT_QUOTE_AUTHENTICITY' // 👈 toggles the apocryphal property of a single quote
-const SET_HIGHLIGHTED_QUOTE = 'SET_HIGHLIGHTED_QUOTE'     // 👈 highlights a quote (or un-highlights it)
-const TOGGLE_VISIBILITY = 'TOGGLE_VISIBILITY'             // 👈 toggles whether to show all or only non-apocryphal
+const CREATE_QUOTE = 'CREATE_QUOTE';
+const DELETE_QUOTE = 'DELETE_QUOTE';
+const EDIT_QUOTE_AUTHENTICITY = 'EDIT_QUOTE_AUTHENTICITY';
+const SET_HIGHLIGHTED_QUOTE = 'SET_HIGHLIGHTED_QUOTE';
+const TOGGLE_VISIBILITY = 'TOGGLE_VISIBILITY';
 
 let id = 1
-const getNextId = () => id++ // 👈 this is a helper to create new quotes
+const getNextId = () => id++
 const quotes = [
   {
     id: getNextId(),
@@ -32,39 +31,94 @@ const quotes = [
   },
 ]
 
-// 👇 create your initial state object here
+const state0 = {
+  quotes: quotes,
+  displayAllQuotes: true,
+  highlightedQuote: null
+}
 
 const reducer = (state, action) => {
-  // 👇 implement your reducer here using the action types above
+  switch(action.type) {
+
+    case CREATE_QUOTE:
+      return {
+        ...state,
+        quotes: [
+          ...state.quotes,
+          { id: getNextId(),
+            quoteText: action.payload.quoteText,
+            authorName: action.payload.authorName,
+            apocryphal: false
+          }
+        ]
+      };
+
+    case DELETE_QUOTE:
+      return {
+        ...state,
+        quotes: state.quotes.filter(quote => quote.id != action.payload)
+      };
+
+    case EDIT_QUOTE_AUTHENTICITY:
+      return {
+        ...state,
+        quotes: state.quotes.map(quote => {
+          if (quote.id != action.payload) return quote;
+          return { ...quote, apocryphal: !quote.apocryphal}
+        })
+      };
+
+    case SET_HIGHLIGHTED_QUOTE:
+      return {
+        ...state,
+        highlightedQuote: action.payload === state.highlightedQuote ? null : action.payload
+      };
+
+    case TOGGLE_VISIBILITY:
+      return {
+        ...state,
+        displayAllQuotes: !state.displayAllQuotes
+      };
+
+    default:
+      return state;
+  }
 }
 
 export default function App() {
-  // 👇 use the reducer hook to spin up state and dispatch
+  const [state, dispatch] = useReducer(reducer, state0);
 
   const createQuote = ({ authorName, quoteText }) => {
-    // 👇 use the helper function above to create a new quote
-    // 👇 and dispatch it over to the reducer
+    dispatch({ type: CREATE_QUOTE, payload: { authorName: authorName, quoteText: quoteText }});
   }
+
   const deleteQuote = id => {
-    // 👇 implement
+    dispatch({ type: DELETE_QUOTE, payload: id });
   }
+
   const editQuoteAuthenticity = id => {
-    // 👇 implement
+    dispatch({ type: EDIT_QUOTE_AUTHENTICITY, payload: id });
   }
+
   const setHighlightedQuote = id => {
-    // 👇 implement
+    dispatch({ type: SET_HIGHLIGHTED_QUOTE, payload: id });
   }
+  
   const toggleVisibility = () => {
-    // 👇 implement
+    dispatch({ type: TOGGLE_VISIBILITY })
   }
 
   return (
     <div id="mp">
       <h2>Module Project</h2>
       <Quotes
-        quotes={quotes}
-      // 👇 lots of props are missing! Check the Quotes component
-
+        quotes={state.quotes}
+        highlightedQuote={state.highlightedQuote}
+        displayAllQuotes={state.displayAllQuotes}
+        deleteQuote={deleteQuote}
+        editQuoteAuthenticity={editQuoteAuthenticity}
+        setHighlightedQuote={setHighlightedQuote}
+        toggleVisibility={toggleVisibility}
       />
       <QuoteForm
         createQuote={createQuote}
